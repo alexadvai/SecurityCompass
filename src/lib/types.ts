@@ -1,4 +1,5 @@
 import { type InferPotentialRiskOutput } from "@/ai/flows/infer-potential-risk";
+import { type SummarizeAssetSecurityOutput } from "@/ai/flows/summarize-asset-security";
 
 export interface Asset {
   id: string;
@@ -20,3 +21,4 @@ export interface Relationship {
 }
 
 export type AIInsight = InferPotentialRiskOutput[0];
+export type AISummary = SummarizeAssetSecurityOutput;

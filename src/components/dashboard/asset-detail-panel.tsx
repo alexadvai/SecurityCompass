@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import AIRiskAnalyzer from "./ai-risk-analyzer";
+import SecuritySummary from "./security-summary";
 import type { Asset, Relationship } from "@/lib/types";
 
 const assetIcons: { [key: string]: React.ElementType } = {
@@ -64,6 +65,8 @@ const AssetDetailPanel = ({
         </div>
 
         <div className="space-y-6">
+          <SecuritySummary asset={asset} />
+
           <Card>
             <CardHeader>
               <CardTitle className="font-headline text-lg">Details</CardTitle>
