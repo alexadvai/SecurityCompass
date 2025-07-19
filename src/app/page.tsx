@@ -19,6 +19,8 @@ import { Label } from "@/components/ui/label";
 import {
   Sheet,
   SheetContent,
+  SheetTitle,
+  SheetHeader,
 } from "@/components/ui/sheet";
 import {
   Collapsible,
@@ -187,6 +189,9 @@ export default function DashboardPage() {
 
       <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
         <SheetContent className="w-full sm:max-w-xl md:max-w-2xl p-0" >
+          <SheetHeader>
+             <SheetTitle className="sr-only">Asset Details</SheetTitle>
+          </SheetHeader>
           {selectedAsset && (
             <AssetDetailPanel
               asset={selectedAsset}
