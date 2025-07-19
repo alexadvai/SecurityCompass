@@ -34,6 +34,7 @@ import ScanUploader from "@/components/dashboard/scan-uploader";
 import { CompassIcon } from "@/components/icons/logo";
 import { mockAssets, mockRelationships } from "@/lib/mock-data";
 import type { Asset, Relationship } from "@/lib/types";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const assetIcons: { [key: string]: React.ElementType } = {
   EC2Instance: Server,
@@ -127,8 +128,8 @@ export default function DashboardPage() {
             Security Compass
           </h1>
         </div>
-        <div>
-          {/* User menu or other actions can go here */}
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
         </div>
       </header>
       <div className="flex flex-1 overflow-hidden">
