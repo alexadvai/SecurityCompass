@@ -30,7 +30,14 @@ To get the application running locally, follow these steps:
     npm install
     ```
 
-2.  **Run the development server**:
+2.  **Configure Environment Variables**:
+    Create a `.env.local` file in the root of the project and add your Gemini API key:
+    ```
+    GEMINI_API_KEY=your_api_key_here
+    ```
+    This file is ignored by Git to keep your credentials secure.
+
+3.  **Run the development server**:
     ```bash
     npm run dev
     ```
