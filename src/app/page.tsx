@@ -21,6 +21,7 @@ import {
   SheetContent,
   SheetTitle,
   SheetHeader,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import {
   Collapsible,
@@ -192,6 +193,7 @@ export default function DashboardPage() {
         <SheetContent className="w-full sm:max-w-xl md:max-w-2xl p-0" >
           <SheetHeader>
              <SheetTitle className="sr-only">Asset Details</SheetTitle>
+             <SheetDescription className="sr-only">Detailed information about the selected cloud asset.</SheetDescription>
           </SheetHeader>
           {selectedAsset && (
             <AssetDetailPanel

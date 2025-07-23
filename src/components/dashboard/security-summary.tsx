@@ -37,7 +37,7 @@ const SecuritySummary = ({ asset }: { asset: Asset }) => {
       <CardHeader>
         <CardTitle className="font-headline text-lg flex items-center gap-2">
           <Bot className="h-5 w-5 text-primary" />
-          Security Summary
+          AI Security Summary
         </CardTitle>
       </CardHeader>
       <CardContent>
