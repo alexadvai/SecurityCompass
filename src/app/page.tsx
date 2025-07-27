@@ -9,6 +9,7 @@ import {
   Users,
   Network,
   Shield,
+  PlusCircle,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -34,8 +35,9 @@ import AssetDetailPanel from "@/components/dashboard/asset-detail-panel";
 import ScanUploader from "@/components/dashboard/scan-uploader";
 import { CompassIcon } from "@/components/icons/logo";
 import { mockAssets, mockRelationships } from "@/lib/mock-data";
-import type { Asset, Relationship } from "@/lib/types";
+import type { Asset, Relationship, AIInsight } from "@/lib/types";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useToast } from "@/hooks/use-toast";
 
 const assetIcons: { [key: string]: React.ElementType } = {
   EC2Instance: Server,
@@ -55,6 +57,7 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [assetTypeFilters, setAssetTypeFilters] = useState<string[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const { toast } = useToast();
 
   React.useEffect(() => {
     setIsClient(true);
@@ -115,6 +118,24 @@ export default function DashboardPage() {
     setAssets(prev => [...prev.filter(a => !newAssetIds.has(a.id)), ...newAssets]);
     setScanUploaderOpen(false);
   };
+  
+  const handleAddRelationship = useCallback((fromAssetId: string, insight: AIInsight) => {
+    const newRelationship: Relationship = {
+      id: `rel-ai-${Date.now()}`,
+      from: fromAssetId,
+      to: insight.toAssetId,
+      type: insight.relationshipType,
+      discoveredBy: 'ai',
+      createdAt: new Date().toISOString(),
+    };
+
+    setRelationships(prev => [...prev, newRelationship]);
+    toast({
+      title: "Relationship Added",
+      description: `Added a '${insight.relationshipType}' link to ${insight.toAssetId}.`,
+      action: <PlusCircle className="text-green-500" />,
+    })
+  }, [toast]);
 
   if (!isClient) {
     return null; // or a loading skeleton
@@ -191,15 +212,16 @@ export default function DashboardPage() {
 
       <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
         <SheetContent className="w-full sm:max-w-xl md:max-w-2xl p-0" >
-          <SheetHeader>
-             <SheetTitle className="sr-only">Asset Details</SheetTitle>
-             <SheetDescription className="sr-only">Detailed information about the selected cloud asset.</SheetDescription>
+          <SheetHeader className="p-6">
+             <SheetTitle>Asset Details</SheetTitle>
+             <SheetDescription>Detailed information about the selected cloud asset.</SheetDescription>
           </SheetHeader>
           {selectedAsset && (
             <AssetDetailPanel
               asset={selectedAsset}
               relationships={relationships.filter(r => r.from === selectedAsset.id || r.to === selectedAsset.id)}
               allAssets={assets}
+              onAddRelationship={(insight) => handleAddRelationship(selectedAsset.id, insight)}
               onClose={() => handleSelectAsset(null)}
             />
           )}

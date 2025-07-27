@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import AIRiskAnalyzer from "./ai-risk-analyzer";
 import SecuritySummary from "./security-summary";
-import type { Asset, Relationship } from "@/lib/types";
+import type { Asset, Relationship, AIInsight } from "@/lib/types";
 
 const assetIcons: { [key: string]: React.ElementType } = {
   EC2Instance: Server,
@@ -29,11 +29,13 @@ const AssetDetailPanel = ({
   asset,
   relationships,
   allAssets,
+  onAddRelationship,
   onClose,
 }: {
   asset: Asset;
   relationships: Relationship[];
   allAssets: Asset[];
+  onAddRelationship: (insight: AIInsight) => void;
   onClose: () => void;
 }) => {
   const AssetIcon = assetIcons[asset.type] || assetIcons.default;
@@ -50,8 +52,8 @@ const AssetDetailPanel = ({
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-6">
+      <div className="p-6 pt-0">
+        <div className="flex items-start justify-between mb-6 sticky top-0 bg-background/95 backdrop-blur-sm z-10 py-4 -mx-6 px-6 border-b">
           <div className="flex items-center gap-4">
             <AssetIcon className="h-10 w-10 text-primary" />
             <div>
@@ -59,7 +61,7 @@ const AssetDetailPanel = ({
               <p className="text-sm text-muted-foreground">{asset.type}</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={onClose} className="absolute top-4 right-4">
             <X className="h-5 w-5" />
           </Button>
         </div>
@@ -143,7 +145,7 @@ const AssetDetailPanel = ({
             </CardContent>
           </Card>
           
-          <AIRiskAnalyzer asset={asset} />
+          <AIRiskAnalyzer asset={asset} onAddRelationship={onAddRelationship} />
         </div>
       </div>
     </ScrollArea>

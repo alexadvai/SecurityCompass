@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Wand2, Loader, AlertTriangle, LinkIcon } from "lucide-react";
+import { Wand2, Loader, AlertTriangle, LinkIcon, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -10,7 +10,12 @@ import { inferPotentialRisk } from "@/ai/flows/infer-potential-risk";
 import type { Asset, AIInsight } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 
-const AIRiskAnalyzer = ({ asset }: { asset: Asset }) => {
+interface AIRiskAnalyzerProps {
+  asset: Asset;
+  onAddRelationship: (insight: AIInsight) => void;
+}
+
+const AIRiskAnalyzer = ({ asset, onAddRelationship }: AIRiskAnalyzerProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [insights, setInsights] = useState<AIInsight[]>([]);
@@ -95,18 +100,24 @@ const AIRiskAnalyzer = ({ asset }: { asset: Asset }) => {
             {insights.map((insight, index) => (
               <div key={index} className="p-3 bg-muted/50 rounded-lg border">
                 <div className="flex justify-between items-start">
-                  <div>
+                  <div className="flex-grow">
                     <p className="font-semibold flex items-center gap-2">
                       <LinkIcon className="h-4 w-4 text-primary" />
                       {insight.relationshipType.replace(/_/g, ' ')}
                       <span className="font-normal text-muted-foreground">to</span>
                       <span className="font-mono text-xs bg-background px-2 py-0.5 rounded">{insight.toAssetId}</span>
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">{insight.reason}</p>
+                    <p className="text-xs text-muted-foreground mt-1 pr-2">{insight.reason}</p>
                   </div>
-                  <Badge variant={insight.riskScore > 0.7 ? "destructive" : "secondary"}>
-                    Risk: {insight.riskScore.toFixed(2)}
-                  </Badge>
+                  <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                    <Badge variant={insight.riskScore > 0.7 ? "destructive" : "secondary"}>
+                      Risk: {insight.riskScore.toFixed(2)}
+                    </Badge>
+                     <Button size="sm" variant="outline" onClick={() => onAddRelationship(insight)}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
