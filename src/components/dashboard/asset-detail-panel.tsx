@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, Server, Users, Network, Shield, ArrowRight, LinkIcon } from "lucide-react";
+import { X, Server, Users, Network, Shield, ArrowRight, LinkIcon, Container, FunctionSquare, UserCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,9 @@ const assetIcons: { [key: string]: React.ElementType } = {
   IAMUser: Users,
   VPC: Network,
   SecurityGroup: Shield,
+  S3Bucket: Container,
+  LambdaFunction: FunctionSquare,
+  IAMRole: UserCheck,
   default: Server,
 };
 
@@ -78,6 +81,12 @@ const AssetDetailPanel = ({
                     <span className="text-muted-foreground">ID</span>
                     <span className="font-mono text-xs">{asset.id}</span>
                 </div>
+                {asset.cloud && (
+                  <div className="flex justify-between">
+                      <span className="text-muted-foreground">Cloud</span>
+                      <span className="font-medium">{asset.cloud}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">Risk Score</span>
                     <div className="flex items-center gap-2">

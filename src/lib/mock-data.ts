@@ -4,6 +4,7 @@ export const mockAssets: Asset[] = [
   {
     id: 'i-0123456789abcdef0',
     type: 'EC2Instance',
+    cloud: 'AWS',
     name: 'web-server-01',
     metadata: {
       region: 'us-east-1',
@@ -18,6 +19,7 @@ export const mockAssets: Asset[] = [
   {
     id: 'i-abcdef01234567890',
     type: 'EC2Instance',
+    cloud: 'AWS',
     name: 'db-server-01',
     metadata: {
       region: 'us-east-1',
@@ -32,6 +34,7 @@ export const mockAssets: Asset[] = [
   {
     id: 'user-001',
     type: 'IAMUser',
+    cloud: 'AWS',
     name: 'dev-admin',
     metadata: {
       arn: 'arn:aws:iam::123456789012:user/dev-admin',
@@ -44,6 +47,7 @@ export const mockAssets: Asset[] = [
   {
     id: 'vpc-01',
     type: 'VPC',
+    cloud: 'AWS',
     name: 'main-vpc',
     metadata: {
       cidrBlock: '10.0.0.0/16',
@@ -56,6 +60,7 @@ export const mockAssets: Asset[] = [
   {
     id: 'sg-web',
     type: 'SecurityGroup',
+    cloud: 'AWS',
     name: 'web-access-sg',
     metadata: {
       description: 'Allows HTTP and HTTPS access',
@@ -71,6 +76,7 @@ export const mockAssets: Asset[] = [
    {
     id: 'sg-db',
     type: 'SecurityGroup',
+    cloud: 'AWS',
     name: 'db-access-sg',
     metadata: {
       description: 'Allows DB access from web servers',
@@ -82,6 +88,58 @@ export const mockAssets: Asset[] = [
     tags: ['security', 'database'],
     updatedAt: new Date().toISOString(),
   },
+  {
+    id: 's3-prod-data',
+    type: 'S3Bucket',
+    cloud: 'AWS',
+    name: 'prod-customer-data',
+    metadata: {
+      region: 'us-east-1',
+      publicAccess: 'Blocked',
+    },
+    riskScore: 0.6,
+    tags: ['data', 'storage', 'production'],
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'lambda-proc-01',
+    type: 'LambdaFunction',
+    cloud: 'AWS',
+    name: 'data-processor',
+    metadata: {
+      runtime: 'nodejs18.x',
+      memorySize: 256,
+    },
+    riskScore: 0.3,
+    tags: ['compute', 'serverless'],
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'role-lambda-s3',
+    type: 'IAMRole',
+    cloud: 'AWS',
+    name: 'LambdaS3AccessRole',
+    metadata: {
+      arn: 'arn:aws:iam::123456789012:role/LambdaS3AccessRole',
+      policies: ['AmazonS3ReadOnlyAccess'],
+    },
+    riskScore: 0.5,
+    tags: ['iam', 'permissions'],
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'gcs-backup-bucket',
+    type: 'S3Bucket', // Using S3 icon for GCS for now
+    cloud: 'GCP',
+    name: 'gcp-backup-storage',
+    metadata: {
+      location: 'US-CENTRAL1',
+      publicAccess: 'Subject to object ACLs',
+    },
+    riskScore: 0.5,
+    tags: ['gcp', 'storage', 'backup'],
+    updatedAt: new Date().toISOString(),
+  }
 ];
 
 export const mockRelationships: Relationship[] = [
@@ -130,6 +188,30 @@ export const mockRelationships: Relationship[] = [
     from: 'sg-web',
     to: 'sg-db',
     type: 'allows_traffic_to',
+    discoveredBy: 'scan',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'rel-7',
+    from: 'i-abcdef01234567890',
+    to: 's3-prod-data',
+    type: 'reads_from',
+    discoveredBy: 'scan',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'rel-8',
+    from: 'lambda-proc-01',
+    to: 'role-lambda-s3',
+    type: 'assumes_role',
+    discoveredBy: 'scan',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'rel-9',
+    from: 'role-lambda-s3',
+    to: 's3-prod-data',
+    type: 'has_access_to',
     discoveredBy: 'scan',
     createdAt: new Date().toISOString(),
   },

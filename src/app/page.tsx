@@ -10,6 +10,10 @@ import {
   Network,
   Shield,
   PlusCircle,
+  Container,
+  FunctionSquare,
+  UserCheck,
+  Cloud,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -44,6 +48,9 @@ const assetIcons: { [key: string]: React.ElementType } = {
   IAMUser: Users,
   VPC: Network,
   SecurityGroup: Shield,
+  S3Bucket: Container,
+  LambdaFunction: FunctionSquare,
+  IAMRole: UserCheck,
   default: Server,
 };
 
@@ -56,6 +63,7 @@ export default function DashboardPage() {
   const [isScanUploaderOpen, setScanUploaderOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [assetTypeFilters, setAssetTypeFilters] = useState<string[]>([]);
+  const [cloudFilters, setCloudFilters] = useState<string[]>([]);
   const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
 
@@ -75,13 +83,21 @@ export default function DashboardPage() {
     }
   }, [handleSelectAsset]);
 
-  const handleFilterChange = (type: string) => {
+  const handleAssetTypeFilterChange = (type: string) => {
     setAssetTypeFilters((prev) =>
       prev.includes(type)
         ? prev.filter((t) => t !== type)
         : [...prev, type]
     );
   };
+  
+  const handleCloudFilterChange = (cloud: string) => {
+    setCloudFilters((prev) =>
+      prev.includes(cloud)
+        ? prev.filter((c) => c !== cloud)
+        : [...prev, cloud]
+    );
+  }
 
   const filteredAssets = useMemo(() => {
     return assets.filter((asset) => {
@@ -90,9 +106,11 @@ export default function DashboardPage() {
         asset.id.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesType =
         assetTypeFilters.length === 0 || assetTypeFilters.includes(asset.type);
-      return matchesSearch && matchesType;
+      const matchesCloud =
+        cloudFilters.length === 0 || (asset.cloud && cloudFilters.includes(asset.cloud));
+      return matchesSearch && matchesType && matchesCloud;
     });
-  }, [assets, searchTerm, assetTypeFilters]);
+  }, [assets, searchTerm, assetTypeFilters, cloudFilters]);
 
   const filteredAssetIds = useMemo(
     () => new Set(filteredAssets.map((a) => a.id)),
@@ -110,7 +128,8 @@ export default function DashboardPage() {
     return assets.find((asset) => asset.id === selectedAssetId) || null;
   }, [assets, selectedAssetId]);
   
-  const assetTypes = useMemo(() => [...new Set(mockAssets.map(a => a.type))], []);
+  const assetTypes = useMemo(() => [...new Set(mockAssets.map(a => a.type))].sort(), []);
+  const cloudProviders = useMemo(() => [...new Set(mockAssets.map(a => a.cloud).filter(Boolean) as string[])].sort(), []);
 
   const handleScanUpload = (newAssets: Asset[]) => {
     const newAssetIds = new Set(newAssets.map(a => a.id));
@@ -172,7 +191,28 @@ export default function DashboardPage() {
             </Button>
           </div>
           <ScrollArea className="flex-1 -mx-4 mt-4">
-            <div className="px-4">
+            <div className="px-4 space-y-4">
+              <Collapsible defaultOpen>
+                <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-lg font-semibold">
+                  <h3 className="font-headline">Cloud Providers</h3>
+                  <ChevronDown className="h-5 w-5 transition-transform [&[data-state=open]]:rotate-180" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-3 pl-2 pt-2">
+                  {cloudProviders.map((provider) => (
+                    <div key={provider} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={provider}
+                        checked={cloudFilters.includes(provider)}
+                        onCheckedChange={() => handleCloudFilterChange(provider)}
+                      />
+                      <Cloud className="h-4 w-4 text-muted-foreground" />
+                      <Label htmlFor={provider} className="flex-1 cursor-pointer">
+                        {provider}
+                      </Label>
+                    </div>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
               <Collapsible defaultOpen>
                 <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-lg font-semibold">
                   <h3 className="font-headline">Asset Types</h3>
@@ -186,11 +226,11 @@ export default function DashboardPage() {
                         <Checkbox
                           id={type}
                           checked={assetTypeFilters.includes(type)}
-                          onCheckedChange={() => handleFilterChange(type)}
+                          onCheckedChange={() => handleAssetTypeFilterChange(type)}
                         />
                         <Icon className="h-4 w-4 text-muted-foreground" />
                         <Label htmlFor={type} className="flex-1 cursor-pointer">
-                          {type}
+                          {type.replace(/([A-Z])/g, ' $1').trim()}
                         </Label>
                       </div>
                     );
@@ -213,8 +253,8 @@ export default function DashboardPage() {
       <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
         <SheetContent className="w-full sm:max-w-xl md:max-w-2xl p-0" >
           <SheetHeader className="p-6">
-             <SheetTitle>Asset Details</SheetTitle>
-             <SheetDescription>Detailed information about the selected cloud asset.</SheetDescription>
+             <SheetTitle className="sr-only">Asset Details</SheetTitle>
+             <SheetDescription className="sr-only">Detailed information about the selected cloud asset.</SheetDescription>
           </SheetHeader>
           {selectedAsset && (
             <AssetDetailPanel

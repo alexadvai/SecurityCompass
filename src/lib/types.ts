@@ -3,7 +3,8 @@ import { type SummarizeAssetSecurityOutput } from "@/ai/flows/summarize-asset-se
 
 export interface Asset {
   id: string;
-  type: "EC2Instance" | "IAMUser" | "VPC" | "SecurityGroup" | string;
+  type: "EC2Instance" | "IAMUser" | "VPC" | "SecurityGroup" | "S3Bucket" | "LambdaFunction" | "IAMRole" | string;
+  cloud?: "AWS" | "GCP" | "Azure" | string;
   name: string;
   metadata: Record<string, any>;
   riskScore: number;
