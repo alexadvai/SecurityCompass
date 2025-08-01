@@ -14,10 +14,10 @@ import {
   FunctionSquare,
   UserCheck,
   Cloud,
+  PanelLeft,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -42,6 +42,15 @@ import { mockAssets, mockRelationships } from "@/lib/mock-data";
 import type { Asset, Relationship, AIInsight } from "@/lib/types";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useToast } from "@/hooks/use-toast";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarTrigger,
+  SidebarContent,
+  SidebarGroup,
+  SidebarInset,
+} from "@/components/ui/sidebar";
 
 const assetIcons: { [key: string]: React.ElementType } = {
   EC2Instance: Server,
@@ -95,7 +104,7 @@ export default function DashboardPage() {
     setCloudFilters((prev) =>
       prev.includes(cloud)
         ? prev.filter((c) => c !== cloud)
-        : [...prev, cloud]
+        : [...prev, c]
     );
   }
 
@@ -161,118 +170,131 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex h-screen w-full flex-col bg-background">
-      <header className="flex h-16 items-center justify-between border-b bg-card px-4 md:px-6">
-        <div className="flex items-center gap-3">
-          <CompassIcon className="h-8 w-8 text-primary" />
-          <h1 className="font-headline text-xl font-semibold tracking-tight">
-            Security Compass
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-        </div>
-      </header>
-      <div className="flex flex-1 overflow-hidden">
-        <aside className="hidden w-80 flex-col border-r bg-card p-4 md:flex">
-          <div className="flex flex-col gap-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search assets..."
-                className="pl-9"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <Button onClick={() => setScanUploaderOpen(true)} >
-              <Upload className="mr-2 h-4 w-4" />
-              Ingest Scan Data
-            </Button>
+    <SidebarProvider>
+      <div className="flex h-screen w-full flex-col bg-muted/20">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b bg-background px-4 md:px-6">
+          <div className="flex items-center gap-3">
+             <SidebarTrigger className="md:hidden" />
+            <CompassIcon className="h-8 w-8 text-primary" />
+            <h1 className="font-headline text-xl font-semibold tracking-tight">
+              Security Compass
+            </h1>
           </div>
-          <ScrollArea className="flex-1 -mx-4 mt-4">
-            <div className="px-4 space-y-4">
-              <Collapsible defaultOpen>
-                <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-lg font-semibold">
-                  <h3 className="font-headline">Cloud Providers</h3>
-                  <ChevronDown className="h-5 w-5 transition-transform [&[data-state=open]]:rotate-180" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-3 pl-2 pt-2">
-                  {cloudProviders.map((provider) => (
-                    <div key={provider} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={provider}
-                        checked={cloudFilters.includes(provider)}
-                        onCheckedChange={() => handleCloudFilterChange(provider)}
-                      />
-                      <Cloud className="h-4 w-4 text-muted-foreground" />
-                      <Label htmlFor={provider} className="flex-1 cursor-pointer">
-                        {provider}
-                      </Label>
-                    </div>
-                  ))}
-                </CollapsibleContent>
-              </Collapsible>
-              <Collapsible defaultOpen>
-                <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-lg font-semibold">
-                  <h3 className="font-headline">Asset Types</h3>
-                  <ChevronDown className="h-5 w-5 transition-transform [&[data-state=open]]:rotate-180" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-3 pl-2 pt-2">
-                  {assetTypes.map((type) => {
-                    const Icon = assetIcons[type] || assetIcons.default;
-                    return (
-                      <div key={type} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={type}
-                          checked={assetTypeFilters.includes(type)}
-                          onCheckedChange={() => handleAssetTypeFilterChange(type)}
-                        />
-                        <Icon className="h-4 w-4 text-muted-foreground" />
-                        <Label htmlFor={type} className="flex-1 cursor-pointer">
-                          {type.replace(/([A-Z])/g, ' $1').trim()}
-                        </Label>
-                      </div>
-                    );
-                  })}
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-          </ScrollArea>
-        </aside>
-        <main className="flex-1 relative">
-          <GraphView
-            assets={filteredAssets}
-            relationships={filteredRelationships}
-            onSelectNode={handleSelectAsset}
-            selectedNodeId={selectedAssetId}
-          />
-        </main>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+          </div>
+        </header>
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar collapsible="icon" className="p-2">
+            <SidebarHeader>
+              <Button onClick={() => setScanUploaderOpen(true)} className="w-full">
+                <Upload className="mr-2 h-4 w-4" />
+                Ingest Scan Data
+              </Button>
+            </SidebarHeader>
+            <SidebarContent>
+              <SidebarGroup>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search assets..."
+                    className="pl-9"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </SidebarGroup>
+              <ScrollArea className="flex-1 -mx-2 mt-2">
+                <div className="px-2 space-y-4">
+                  <SidebarGroup>
+                    <Collapsible defaultOpen>
+                      <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-lg font-semibold">
+                        <h3 className="font-headline">Cloud Providers</h3>
+                        <ChevronDown className="h-5 w-5 transition-transform [&[data-state=open]]:rotate-180" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="space-y-3 pl-2 pt-2">
+                        {cloudProviders.map((provider) => (
+                          <div key={provider} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={provider}
+                              checked={cloudFilters.includes(provider)}
+                              onCheckedChange={() => handleCloudFilterChange(provider)}
+                            />
+                            <Cloud className="h-4 w-4 text-muted-foreground" />
+                            <Label htmlFor={provider} className="flex-1 cursor-pointer">
+                              {provider}
+                            </Label>
+                          </div>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </SidebarGroup>
+                  <SidebarGroup>
+                    <Collapsible defaultOpen>
+                      <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-lg font-semibold">
+                        <h3 className="font-headline">Asset Types</h3>
+                        <ChevronDown className="h-5 w-5 transition-transform [&[data-state=open]]:rotate-180" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="space-y-3 pl-2 pt-2">
+                        {assetTypes.map((type) => {
+                          const Icon = assetIcons[type] || assetIcons.default;
+                          return (
+                            <div key={type} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={type}
+                                checked={assetTypeFilters.includes(type)}
+                                onCheckedChange={() => handleAssetTypeFilterChange(type)}
+                              />
+                              <Icon className="h-4 w-4 text-muted-foreground" />
+                              <Label htmlFor={type} className="flex-1 cursor-pointer">
+                                {type.replace(/([A-Z])/g, ' $1').trim()}
+                              </Label>
+                            </div>
+                          );
+                        })}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </SidebarGroup>
+                </div>
+              </ScrollArea>
+            </SidebarContent>
+          </Sidebar>
+          <SidebarInset>
+            <main className="flex-1 relative bg-background p-4 rounded-lg shadow-inner">
+              <GraphView
+                assets={filteredAssets}
+                relationships={filteredRelationships}
+                onSelectNode={handleSelectAsset}
+                selectedNodeId={selectedAssetId}
+              />
+            </main>
+          </SidebarInset>
+        </div>
+
+        <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
+          <SheetContent className="w-full sm:max-w-xl md:max-w-2xl p-0" >
+            <SheetHeader className="p-6">
+               <SheetTitle>Asset Details</SheetTitle>
+               <SheetDescription>Detailed information about the selected cloud asset.</SheetDescription>
+            </SheetHeader>
+            {selectedAsset && (
+              <AssetDetailPanel
+                asset={selectedAsset}
+                relationships={relationships.filter(r => r.from === selectedAsset.id || r.to === selectedAsset.id)}
+                allAssets={assets}
+                onAddRelationship={(insight) => handleAddRelationship(selectedAsset.id, insight)}
+                onClose={() => handleSelectAsset(null)}
+              />
+            )}
+          </SheetContent>
+        </Sheet>
+
+        <ScanUploader
+          isOpen={isScanUploaderOpen}
+          onOpenChange={setScanUploaderOpen}
+          onUpload={handleScanUpload}
+        />
       </div>
-
-      <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
-        <SheetContent className="w-full sm:max-w-xl md:max-w-2xl p-0" >
-          <SheetHeader className="p-6">
-             <SheetTitle className="sr-only">Asset Details</SheetTitle>
-             <SheetDescription className="sr-only">Detailed information about the selected cloud asset.</SheetDescription>
-          </SheetHeader>
-          {selectedAsset && (
-            <AssetDetailPanel
-              asset={selectedAsset}
-              relationships={relationships.filter(r => r.from === selectedAsset.id || r.to === selectedAsset.id)}
-              allAssets={assets}
-              onAddRelationship={(insight) => handleAddRelationship(selectedAsset.id, insight)}
-              onClose={() => handleSelectAsset(null)}
-            />
-          )}
-        </SheetContent>
-      </Sheet>
-
-      <ScanUploader
-        isOpen={isScanUploaderOpen}
-        onOpenChange={setScanUploaderOpen}
-        onUpload={handleScanUpload}
-      />
-    </div>
+    </SidebarProvider>
   );
 }

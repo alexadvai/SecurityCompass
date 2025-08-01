@@ -15,6 +15,7 @@ const lightThemeColors = {
     },
     font: '#0f172a',
     edge: { color: '#94a3b8', highlight: '#1E3A8A' },
+    background: '#ffffff',
 };
 
 const darkThemeColors = {
@@ -26,10 +27,28 @@ const darkThemeColors = {
     },
     font: '#f8fafc',
     edge: { color: '#64748b', highlight: '#60a5fa' },
+    background: '#18181b', // A slightly lighter dark for the graph bg
+};
+
+const cyberpunkThemeColors = {
+     node: {
+        red: { border: '#f91880', background: '#5e173e' },
+        orange: { border: '#ff7a00', background: '#663300' },
+        yellow: { border: '#ffd400', background: '#594a00' },
+        green: { border: '#32cd32', background: '#145214' },
+    },
+    font: '#00f0ff',
+    edge: { color: '#7e22ce', highlight: '#f91880' },
+    background: '#0d0c22'
 }
 
-const getNodeColor = (riskScore: number, theme: 'light' | 'dark' = 'light') => {
-    const colors = theme === 'light' ? lightThemeColors.node : darkThemeColors.node;
+const getNodeColor = (riskScore: number, theme: 'light' | 'dark' | 'cyberpunk' = 'light') => {
+    const themes = {
+      light: lightThemeColors.node,
+      dark: darkThemeColors.node,
+      cyberpunk: cyberpunkThemeColors.node,
+    }
+    const colors = themes[theme] || lightThemeColors.node;
     if (riskScore > 0.75) return colors.red;
     if (riskScore > 0.5) return colors.orange;
     if (riskScore > 0.25) return colors.yellow;
@@ -52,19 +71,26 @@ const GraphView = ({
     const networkRef = useRef<Network | null>(null);
     const { resolvedTheme } = useTheme();
     const isDark = resolvedTheme === 'dark';
+    const currentTheme = (resolvedTheme || 'light') as 'light' | 'dark' | 'cyberpunk';
+
 
     const graphData = useMemo((): Data => {
-        const theme = isDark ? 'dark' : 'light';
+        const themeColors = {
+            light: lightThemeColors,
+            dark: darkThemeColors,
+            cyberpunk: cyberpunkThemeColors,
+        }[currentTheme] || lightThemeColors;
+
         const nodes: Node[] = assets.map(asset => ({
             id: asset.id,
             label: asset.name,
             title: `${asset.type}: ${asset.name}`,
             shape: 'box',
-            color: getNodeColor(asset.riskScore, theme),
+            color: getNodeColor(asset.riskScore, currentTheme),
             borderWidth: 2,
             font: {
                 face: 'Inter',
-                color: isDark ? darkThemeColors.font : lightThemeColors.font,
+                color: themeColors.font,
             },
             margin: 10,
             shapeProperties: {
@@ -78,11 +104,11 @@ const GraphView = ({
             to: rel.to,
             label: rel.type.replace(/_/g, ' '),
             arrows: 'to',
-            color: isDark ? darkThemeColors.edge : lightThemeColors.edge,
+            color: themeColors.edge,
             font: { 
                 align: 'top', 
                 face: 'Inter',
-                color: isDark ? darkThemeColors.font : lightThemeColors.font,
+                color: themeColors.font,
              },
             smooth: {
                 type: 'cubicBezier'
@@ -90,10 +116,16 @@ const GraphView = ({
         }));
 
         return { nodes, edges };
-    }, [assets, relationships, isDark]);
+    }, [assets, relationships, currentTheme]);
 
     useEffect(() => {
         if (!containerRef.current) return;
+        const themeColors = {
+            light: lightThemeColors,
+            dark: darkThemeColors,
+            cyberpunk: cyberpunkThemeColors,
+        }[currentTheme] || lightThemeColors;
+
 
         const options: Options = {
             layout: {
@@ -156,7 +188,7 @@ const GraphView = ({
         };
     // We want to re-initialize the network when the theme changes to apply colors
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isDark]);
+    }, [currentTheme]);
 
     useEffect(() => {
         if (networkRef.current) {
@@ -174,7 +206,13 @@ const GraphView = ({
         }
     }, [selectedNodeId]);
 
-    return <div ref={containerRef} className="h-full w-full bg-background rounded-lg shadow-inner" />;
+    const themeColors = {
+        light: lightThemeColors,
+        dark: darkThemeColors,
+        cyberpunk: cyberpunkThemeColors
+    }[currentTheme] || lightThemeColors;
+
+    return <div ref={containerRef} className="h-full w-full rounded-lg" style={{backgroundColor: themeColors.background}} />;
 };
 
 export default GraphView;
