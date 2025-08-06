@@ -14,7 +14,6 @@ import {
   FunctionSquare,
   UserCheck,
   Cloud,
-  PanelLeft,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -22,20 +21,13 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetHeader,
-  SheetDescription,
-} from "@/components/ui/sheet";
-import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import GraphView from "@/components/dashboard/graph-view";
-import AssetDetailPanel from "@/components/dashboard/asset-detail-panel";
+import RightSidebar from "@/components/dashboard/right-sidebar";
 import ScanUploader from "@/components/dashboard/scan-uploader";
 import { CompassIcon } from "@/components/icons/logo";
 import { mockAssets, mockRelationships } from "@/lib/mock-data";
@@ -68,7 +60,6 @@ export default function DashboardPage() {
   const [relationships, setRelationships] =
     useState<Relationship[]>(mockRelationships);
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isScanUploaderOpen, setScanUploaderOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [assetTypeFilters, setAssetTypeFilters] = useState<string[]>([]);
@@ -82,15 +73,7 @@ export default function DashboardPage() {
 
   const handleSelectAsset = useCallback((assetId: string | null) => {
     setSelectedAssetId(assetId);
-    setIsSheetOpen(!!assetId);
   }, []);
-
-  const handleSheetOpenChange = useCallback((open: boolean) => {
-    setIsSheetOpen(open);
-    if (!open) {
-      handleSelectAsset(null);
-    }
-  }, [handleSelectAsset]);
 
   const handleAssetTypeFilterChange = (type: string) => {
     setAssetTypeFilters((prev) =>
@@ -269,26 +252,16 @@ export default function DashboardPage() {
               />
             </main>
           </SidebarInset>
+
+           <RightSidebar
+            asset={selectedAsset}
+            relationships={relationships}
+            allAssets={assets}
+            onAddRelationship={handleAddRelationship}
+            onClose={() => handleSelectAsset(null)}
+          />
+
         </div>
-
-        <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
-          <SheetContent className="w-full sm:max-w-xl md:max-w-2xl p-0" >
-            <SheetHeader className="p-6">
-               <SheetTitle>Asset Details</SheetTitle>
-               <SheetDescription>Detailed information about the selected cloud asset.</SheetDescription>
-            </SheetHeader>
-            {selectedAsset && (
-              <AssetDetailPanel
-                asset={selectedAsset}
-                relationships={relationships.filter(r => r.from === selectedAsset.id || r.to === selectedAsset.id)}
-                allAssets={assets}
-                onAddRelationship={(insight) => handleAddRelationship(selectedAsset.id, insight)}
-                onClose={() => handleSelectAsset(null)}
-              />
-            )}
-          </SheetContent>
-        </Sheet>
-
         <ScanUploader
           isOpen={isScanUploaderOpen}
           onOpenChange={setScanUploaderOpen}
