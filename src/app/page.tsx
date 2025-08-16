@@ -43,6 +43,7 @@ import {
   SidebarGroup,
   SidebarInset,
 } from "@/components/ui/sidebar";
+import DashboardSkeleton from "@/components/dashboard/dashboard-skeleton";
 
 const assetIcons: { [key: string]: React.ElementType } = {
   EC2Instance: Server,
@@ -149,7 +150,7 @@ export default function DashboardPage() {
   }, [toast]);
 
   if (!isClient) {
-    return null; // or a loading skeleton
+    return <DashboardSkeleton />;
   }
 
   return (
